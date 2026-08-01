@@ -3,14 +3,14 @@
 # Debian specific:  Specifying a file name will cause the first
 # line of that file to be used as the name.  The Debian default
 # is /etc/mailname.
-#myorigin = /etc/mailname
+myorigin = /etc/mailname
 #05.09.2016  dodao smtpd_sender_restrictions => napravio modifikaciju (dodao ko$
-#smtpd_sender_restrictions = check_sender_access hash:/etc/postfix/sender_access
+smtpd_sender_restrictions = check_sender_access hash:/etc/postfix/sender_access
 #smtpd_recipient_restrictions = check_recipient_access hash:/etc/postfix/recipi$
 smtpd_banner = $myhostname ESMTP $mail_name (Debian/GNU)
 biff = no
 # appending .domain is the MUA's job.
-append_dot_mydomain = no
+#append_dot_mydomain = no
 
 # Uncomment the next line to generate "delayed mail" warnings
 #delay_warning_time = 4h
@@ -19,9 +19,9 @@ append_dot_mydomain = no
 smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
 smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
 #dolje promjena u "yes" 07092016
-smtpd_use_tls=yes
-smtpd_tls_session_cache_database = btree:${queue_directory}/smtpd_scache
-smtp_tls_session_cache_database = btree:${queue_directory}/smtp_scache
+#smtpd_use_tls=yes
+#smtpd_tls_session_cache_database = btree:${queue_directory}/smtpd_scache
+#smtp_tls_session_cache_database = btree:${queue_directory}/smtp_scache
 
 # See /usr/share/doc/postfix/TLS_README.gz in the postfix-doc package for
 # information on enabling SSL in the smtp client.
@@ -30,17 +30,20 @@ myhostname = mail.gkri.hr
 alias_maps = hash:/etc/aliases
 alias_database = hash:/etc/aliases
 myorigin = /etc/mailname
+#myorigin = localhost
 mydestination = mail.gkri.hr, localhost.localdomain, localhost
-#relayhost =
+#mydestination = localhost.$mydomain, localhost, $mydomain
+#mydestination = localhost
+relayhost =
 mynetworks = 127.0.0.0/8, 193.198.1.29
 mailbox_size_limit = 0
 recipient_delimiter = +
 #inet_interfaces = all
-inet_interfaces = 193.198.1.XX, 127.0.0.1
+inet_interfaces = 193.198.1.11, 127.0.0.1
 inet_protocols = ipv4
-#virtual_alias_maps = mysql:/etc/postfix/mysql_virtual_alias_maps.cf
+virtual_alias_maps = mysql:/etc/postfix/mysql_virtual_alias_maps.cf
 #virtual_alias_maps = hash:/etc/postfix/virtual
-virtual_alias_domains=gkri.hr
+#virtual_alias_domains=gkri.hr zbog ovoga nisam mogao slati mailove lokalno
 virtual_gid_maps = static:107
 virtual_mailbox_base = /var/vmail
 virtual_mailbox_domains = mysql:/etc/postfix/mysql_virtual_domains_maps.cf
@@ -52,49 +55,47 @@ virtual_uid_maps = static:105
 relay_domains = proxy:mysql:/etc/postfix/mysql_relay_domains_maps.cf
 
 content_filter = smtp-amavis:[127.0.0.1]:10024
-smtpd_data_restrictions = reject_unauth_pipelining,check_sender_access pcre:/et$
-
+smtpd_data_restrictions = reject_unauth_pipelining,check_sender_access pcre:/etc
 receive_override_options=no_address_mappings
 #promjena na "yes" 07092016 - red dolje
-#smtpd_sasl_auth_enable = yes
+smtpd_sasl_auth_enable = yes
 smtpd_sasl_security_options = noanonymous
-#broken_sasl_auth_clients = yes
+broken_sasl_auth_clients = yes
 
 smtpd_sasl_type = dovecot
 smtpd_sasl_path = private/auth
 
-
 #dodao nakon 5-tog reda još na smtpd_recipient_restrictions 24032017
 smtpd_recipient_restrictions =
   permit_mynetworks,
-#  permit_sasl_authenticated,
+  permit_sasl_authenticated,
 #  check_sender_access hash:/etc/postfix/sender_checks,
 #  check_client_access hash:/etc/postfix/rbl_override,
-  reject_unauth_destination,
-  reject_unauth_pipelining,
+#  reject_unauth_destination,
+#  reject_unauth_pipelining,
 # 30032017 jer neki nakladnici nemaju reverse  reject_unknown_reverse_client_ho$
 # reject_invalid_helo_hostname,
-#  reject_non_fqdn_helo_hostname,
+# reject_non_fqdn_helo_hostname,
   reject_non_fqdn_sender,
-  check_sender_access hash:/etc/postfix/exempt_senders,
- check_policy_service inet:127.0.0.1:10023,
+#  check_sender_access hash:/etc/postfix/exempt_senders,
+# check_policy_service inet:127.0.0.1:10023, #kada sam maknuo ovo radi prema va$
   reject_non_fqdn_recipient,
   reject_unknown_sender_domain,
   reject_unknown_recipient_domain,
   reject_invalid_hostname,
   reject_rbl_client zen.spamhaus.org,
   reject_rbl_client bl.spamcop.net,
-  reject_rbl_client b.barracudacentral.org,
+   reject_rbl_client b.barracudacentral.org,
 #  reject_rbl_client dnsbl.sorbs.net,
   reject_rbl_client cbl.abuseat.org,
- reject_rbl_client blackholes.easynet.nl,
+  reject_rbl_client blackholes.easynet.nl,
   reject_rbl_client cbl.abuseat.org,
 #  reject_rbl_client proxies.blackholes.wirehub.net,
   reject_rbl_client sbl.spamhaus.org
 #  reject_rbl_client opm.blitzed.org,
 #  reject_rbl_client dnsbl.njabl.org,
 #  reject_rbl_client list.dsbl.org,
-#  reject_rbl_client multihop.dsbl.org
+  reject_rbl_client multihop.dsbl.org
 
   permit
 
@@ -104,8 +105,8 @@ smtpd_tls_loglevel = 1
 
 smtpd_client_restrictions = permit_mynetworks,
         permit_sasl_authenticated,
-        reject_unauth_destination,
- reject_rbl_client zen.spamhaus.org,
+       reject_unauth_destination,
+        reject_rbl_client zen.spamhaus.org,
         reject_rbl_client bl.spamcop.net,
         reject_rbl_client cbl.abuseat.org,
         reject_rbl_client blackholes.easynet.nl,
@@ -114,9 +115,8 @@ smtpd_client_restrictions = permit_mynetworks,
         reject_rbl_client bl.spamcop.net,
         reject_rbl_client sbl.spamhaus.org,
         reject_rbl_client opm.blitzed.org
-       # reject_rbl_client dnsbl.njabl.org,
-
-     # reject_rbl_client list.dsbl.org,
+      # reject_rbl_client dnsbl.njabl.org,
+       # reject_rbl_client list.dsbl.org,
        # reject_rbl_client multihop.dsbl.org
 
 
@@ -136,7 +136,6 @@ smtp_extra_recipient_limit = 10
 
 #dodano 19092016 radi DKIM
 milter_protocol = 6
-
 milter_default_action = accept
 smtpd_milters = inet:localhost:1427143
 non_smtpd_milters = inet:localhost:1427143
@@ -146,12 +145,10 @@ non_smtpd_milters = inet:localhost:1427143
 disable_vrfy_command = yes
 smtpd_delay_reject = yes
 smtpd_helo_required = yes
+
 #Rate throttlanje
 
 smtpd_client_connection_rate_limit = 20
 smtpd_error_sleep_time = 10s
 smtpd_soft_error_limit = 3
 #smptd_hard_error_limit = 5
-
-#dodatno18022019 radi vivainfo, maknuo 04072019
-smtpd_relay_restrictions = permit_mynetworks, permit_sasl_authenticated
