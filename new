@@ -1,0 +1,13 @@
+<template id="report_saleorder_document_inherit_qr" inherit_id="sale.report_saleorder_document">
+    <!-- Targets the existing conditions text block to append the QR code after it -->
+    <xpath expr="//div[@name='so_template_conditions']" position="after">
+        <div class="text-left mt-3">
+            <strong>Scan to view Quotation:</strong>
+            <br/>
+            <!-- Correct Odoo 17 URL safe barcode generator structure -->
+            <img t-att-src="'/report/barcode/?type=QR&amp;value=%s' % quote_plus(doc.get_portal_url(with_token=True))" 
+                 style="width:130px; height:130px;" 
+                 alt="Quotation QR Code"/>
+        </div>
+    </xpath>
+</template>
