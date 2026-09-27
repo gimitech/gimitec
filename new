@@ -11,3 +11,10 @@
         </div>
     </xpath>
 </template>
+
+
+<div class="text-center mt-3">
+    <!-- This securely computes the portal URL, fetches the token, and encodes the query string safely -->
+    <img t-att-src="'/report/barcode/?type=QR&amp;value=%s' % quote_plus(doc.get_portal_url(with_token=True))" 
+         style="width:150px; height:150px;"/>
+</div>
